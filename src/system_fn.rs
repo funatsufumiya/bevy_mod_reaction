@@ -1,5 +1,5 @@
 use crate::{ReactiveSystem, ReactiveSystemParam, Scope};
-use bevy_ecs::{prelude::*, system::SystemParamItem, world::DeferredWorld};
+use bevy_ecs::{prelude::*, system::{self, SystemParamItem}, world::DeferredWorld};
 use std::marker::PhantomData;
 
 pub trait ReactiveSystemParamFunction<Marker> {
@@ -12,14 +12,14 @@ pub trait ReactiveSystemParamFunction<Marker> {
     fn run(
         &mut self,
         param: SystemParamItem<Self::Param>,
-        input: Self::In,
+        input: system::In<Self::In>,
         entity: Entity,
     ) -> Self::Out;
 }
 
-impl<Marker, F, T> ReactiveSystemParamFunction<Marker> for F
+impl<Marker, F, T: 'static> ReactiveSystemParamFunction<Marker> for F
 where
-    F: SystemParamFunction<Marker, In = Scope<T>>,
+    F: SystemParamFunction<Marker, In = In<Scope<T>>>,
     F::Param: ReactiveSystemParam,
 {
     type Param = F::Param;
@@ -31,10 +31,10 @@ where
     fn run(
         &mut self,
         param: SystemParamItem<Self::Param>,
-        input: Self::In,
+        input: system::In<Self::In>,
         entity: Entity,
     ) -> Self::Out {
-        SystemParamFunction::run(self, Scope { entity, input }, param)
+        SystemParamFunction::run(self, Scope { entity, input: input.0 }, param)
     }
 }
 
@@ -67,6 +67,6 @@ where
         let mut world = world.reborrow();
         let params = unsafe { F::Param::get(&mut world, self.state.as_mut().unwrap()) };
 
-        self.f.run(params, input, entity)
+        self.f.run(params, system::In(input), entity)
     }
 }

@@ -65,3 +65,10 @@ reaction.add_target(b);
 
 commands.spawn(reaction);
 ```
+
+## Versions
+
+| bevy_mod_reaction | bevy |
+| ----------------- | ---- |
+| 0.3.0             | 0.15 |
+| 0.2.0             | 0.14 |

@@ -25,7 +25,7 @@ impl<L: ScheduleLabel> Component for Reaction<L> {
 
     fn register_component_hooks(hooks: &mut ComponentHooks) {
         hooks.on_insert(|mut world, entity, _| {
-            world.commands().add(move |world: &mut World| {
+            world.commands().queue(move |world: &mut World| {
                 let inner = world
                     .query::<&Reaction<L>>()
                     .get(world, entity)
@@ -101,7 +101,7 @@ impl Reaction {
         Marker: Send + Sync + 'static,
         B: Bundle,
     {
-        Self::new(system.map(|scope: In<Scope<B>>, mut commands: Commands| {
+        Self::new(system.map(move |scope: In<Scope<B>>, mut commands: Commands| {
             commands.entity(scope.entity).insert(scope.0.input);
         }))
     }

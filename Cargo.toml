@@ -1,15 +1,15 @@
 [package]
 name = "bevy_mod_reaction"
 description = "Reactive components for Bevy"
-version = "0.2.0-alpha.1"
+version = "0.3.0-alpha.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-bevy_app = "0.14.2"
-bevy_ecs = "0.14.2"
-bevy_hierarchy = "0.14.2"
-bevy_utils = "0.14.2"
+bevy_app = "0.15.1"
+bevy_ecs = "0.15.1"
+bevy_hierarchy = "0.15.1"
+bevy_utils = "0.15.1"
 
 [dev-dependencies]
-bevy = "0.14.2"
+bevy = "0.15.1"

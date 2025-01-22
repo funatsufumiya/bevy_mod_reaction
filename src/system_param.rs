@@ -2,12 +2,11 @@ use crate::ReactiveQueryData;
 use bevy_ecs::{
     component::Tick,
     prelude::*,
-    query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
+    query::{QueryData, QueryEntityError, QueryFilter, ReadOnlyQueryData, WorldQuery},
     system::{SystemMeta, SystemParam, SystemState},
     world::{unsafe_world_cell::UnsafeWorldCell, DeferredWorld},
 };
 use bevy_utils::HashSet;
-use std::error::Error;
 
 pub trait ReactiveSystemParam: SystemParam {
     type State: Send + Sync + 'static;
@@ -89,7 +88,7 @@ impl<R: Resource> ReactiveSystemParam for Res<'_, R> {
         state: &'s mut <Self as ReactiveSystemParam>::State,
     ) -> Self::Item<'w, 's> {
         let _ = state;
-        world.resource_ref::<R>()
+        std::mem::transmute(world.resource_ref::<R>())
     }
 }
 
@@ -182,12 +181,12 @@ pub struct ReactiveQuery<'w, 's, D: ReadOnlyQueryData + 'static, F: QueryFilter 
 }
 
 impl<'w, 's, D: ReadOnlyQueryData + 'static, F: QueryFilter + 'static> ReactiveQuery<'w, 's, D, F> {
-    pub fn get(&mut self, entity: Entity) -> Result<<D as WorldQuery>::Item<'_>, Box<dyn Error>> {
+    pub fn get(&mut self, entity: Entity) -> Result<<D as WorldQuery>::Item<'_>, QueryEntityError> {
         self.entities.insert(entity);
 
         self.query
             .get(entity)
-            .map_err(|e| Box::new(e) as Box<dyn Error>)
+            .map_err(|e| e)
     }
 }
 
